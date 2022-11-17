@@ -18,7 +18,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let initialController = UINavigationController()
-        initialController.setRootWireframe(ChatScreenWireframe())
+        if SettingsBundleHelper.isTree {
+            initialController.setViewControllers([UIViewController()], animated: false)
+        } else {
+            initialController.setRootWireframe(ChatScreenWireframe())
+        }
 
         window.rootViewController = initialController
         window.makeKeyAndVisible()
