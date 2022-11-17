@@ -26,6 +26,15 @@
 		A5D629B82926524B00FF8C96 /* ChatScreenWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D629B42926524B00FF8C96 /* ChatScreenWireframe.swift */; };
 		A5D629BA2926BBD300FF8C96 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A5D629B92926BBD300FF8C96 /* Settings.bundle */; };
 		A5D629BC2926BD5A00FF8C96 /* SettingsBundleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D629BB2926BD5A00FF8C96 /* SettingsBundleHelper.swift */; };
+		A5D629BE2926C3C200FF8C96 /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D629BD2926C3C200FF8C96 /* ConnectionManager.swift */; };
+		A5D629C12926C3DE00FF8C96 /* SPIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = A5D629C02926C3DE00FF8C96 /* SPIndicator */; };
+		A5F533252926CFCD0082B2B5 /* PeerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331C2926CFCD0082B2B5 /* PeerCell.swift */; };
+		A5F533262926CFCD0082B2B5 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331D2926CFCD0082B2B5 /* Section.swift */; };
+		A5F533272926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331E2926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift */; };
+		A5F533282926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331F2926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift */; };
+		A5F533292926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F533202926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift */; };
+		A5F5332A2926CFCD0082B2B5 /* DiscoveryScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F533212926CFCD0082B2B5 /* DiscoveryScreenViewController.swift */; };
+		A5F5332C2926CFCD0082B2B5 /* PeerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F533242926CFCD0082B2B5 /* PeerModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +56,14 @@
 		A5D629B42926524B00FF8C96 /* ChatScreenWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreenWireframe.swift; sourceTree = "<group>"; };
 		A5D629B92926BBD300FF8C96 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		A5D629BB2926BD5A00FF8C96 /* SettingsBundleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsBundleHelper.swift; sourceTree = "<group>"; };
+		A5D629BD2926C3C200FF8C96 /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
+		A5F5331C2926CFCD0082B2B5 /* PeerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeerCell.swift; sourceTree = "<group>"; };
+		A5F5331D2926CFCD0082B2B5 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
+		A5F5331E2926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenWireframe.swift; sourceTree = "<group>"; };
+		A5F5331F2926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenPresenter.swift; sourceTree = "<group>"; };
+		A5F533202926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenInterfaces.swift; sourceTree = "<group>"; };
+		A5F533212926CFCD0082B2B5 /* DiscoveryScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenViewController.swift; sourceTree = "<group>"; };
+		A5F533242926CFCD0082B2B5 /* PeerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeerModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +74,7 @@
 				A5D6298E2925979800FF8C96 /* MessageKit in Frameworks */,
 				A5D62986292591B800FF8C96 /* SnapKit in Frameworks */,
 				A5D6298B2925924600FF8C96 /* Reusable in Frameworks */,
+				A5D629C12926C3DE00FF8C96 /* SPIndicator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,11 +123,13 @@
 		A529C2C928FEF96A00E2FD55 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				A5F5331A2926CFCD0082B2B5 /* DiscoveryScreen */,
 				A5D629AF2926517D00FF8C96 /* ConnectScreen */,
 				A5D629B0292651B400FF8C96 /* ChatScreen */,
 				A5D6299529259BE500FF8C96 /* Message.swift */,
 				A5D629A029259C6800FF8C96 /* User.swift */,
 				A5D629A229259C9A00FF8C96 /* SampleData.swift */,
+				A5D629BD2926C3C200FF8C96 /* ConnectionManager.swift */,
 			);
 			path = Scenes;
 			sourceTree = "<group>";
@@ -151,6 +171,36 @@
 			path = ChatScreen;
 			sourceTree = "<group>";
 		};
+		A5F5331A2926CFCD0082B2B5 /* DiscoveryScreen */ = {
+			isa = PBXGroup;
+			children = (
+				A5F5331B2926CFCD0082B2B5 /* Cells */,
+				A5F5331E2926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift */,
+				A5F5331F2926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift */,
+				A5F533202926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift */,
+				A5F533212926CFCD0082B2B5 /* DiscoveryScreenViewController.swift */,
+				A5F533222926CFCD0082B2B5 /* Entities */,
+			);
+			path = DiscoveryScreen;
+			sourceTree = "<group>";
+		};
+		A5F5331B2926CFCD0082B2B5 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				A5F5331C2926CFCD0082B2B5 /* PeerCell.swift */,
+				A5F5331D2926CFCD0082B2B5 /* Section.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		A5F533222926CFCD0082B2B5 /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				A5F533242926CFCD0082B2B5 /* PeerModel.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -171,6 +221,7 @@
 				A5D62985292591B800FF8C96 /* SnapKit */,
 				A5D6298A2925924600FF8C96 /* Reusable */,
 				A5D6298D2925979800FF8C96 /* MessageKit */,
+				A5D629C02926C3DE00FF8C96 /* SPIndicator */,
 			);
 			productName = AvitoInternship2022;
 			productReference = A529C2B028FEF60500E2FD55 /* Task3.app */;
@@ -204,6 +255,7 @@
 				A5D62984292591B800FF8C96 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				A5D629892925924600FF8C96 /* XCRemoteSwiftPackageReference "Reusable" */,
 				A5D6298C2925979800FF8C96 /* XCRemoteSwiftPackageReference "MessageKit" */,
+				A5D629BF2926C3DE00FF8C96 /* XCRemoteSwiftPackageReference "SPIndicator" */,
 			);
 			productRefGroup = A529C2B128FEF60500E2FD55 /* Products */;
 			projectDirPath = "";
@@ -232,17 +284,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5F533272926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift in Sources */,
 				A5D629A129259C6800FF8C96 /* User.swift in Sources */,
 				A529C30628FEFFA000E2FD55 /* BaseWireframe.swift in Sources */,
+				A5F5332C2926CFCD0082B2B5 /* PeerModel.swift in Sources */,
 				A529C30828FEFFA000E2FD55 /* InteractorInterface.swift in Sources */,
+				A5D629BE2926C3C200FF8C96 /* ConnectionManager.swift in Sources */,
 				A529C30928FEFFA000E2FD55 /* PresenterInterface.swift in Sources */,
 				A5D6299629259BE600FF8C96 /* Message.swift in Sources */,
 				A5D629BC2926BD5A00FF8C96 /* SettingsBundleHelper.swift in Sources */,
 				A5D629B82926524B00FF8C96 /* ChatScreenWireframe.swift in Sources */,
+				A5F533282926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift in Sources */,
 				A5D629B72926524B00FF8C96 /* ChatScreenViewController.swift in Sources */,
+				A5F533292926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift in Sources */,
 				A529C2B428FEF60500E2FD55 /* AppDelegate.swift in Sources */,
+				A5F5332A2926CFCD0082B2B5 /* DiscoveryScreenViewController.swift in Sources */,
+				A5F533252926CFCD0082B2B5 /* PeerCell.swift in Sources */,
 				A5D629A329259C9B00FF8C96 /* SampleData.swift in Sources */,
 				A5D629B62926524B00FF8C96 /* ChatScreenPresenter.swift in Sources */,
+				A5F533262926CFCD0082B2B5 /* Section.swift in Sources */,
 				A529C30728FEFFA000E2FD55 /* ViewInterface.swift in Sources */,
 				A5D629B52926524B00FF8C96 /* ChatScreenInterfaces.swift in Sources */,
 			);
@@ -484,6 +544,14 @@
 				minimumVersion = 4.0.0;
 			};
 		};
+		A5D629BF2926C3DE00FF8C96 /* XCRemoteSwiftPackageReference "SPIndicator" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ivanvorobei/SPIndicator";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -501,6 +569,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A5D6298C2925979800FF8C96 /* XCRemoteSwiftPackageReference "MessageKit" */;
 			productName = MessageKit;
+		};
+		A5D629C02926C3DE00FF8C96 /* SPIndicator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A5D629BF2926C3DE00FF8C96 /* XCRemoteSwiftPackageReference "SPIndicator" */;
+			productName = SPIndicator;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

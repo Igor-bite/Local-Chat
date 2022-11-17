@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if SettingsBundleHelper.isTree {
             initialController.setViewControllers([UIViewController()], animated: false)
         } else {
-            initialController.setRootWireframe(ChatScreenWireframe())
+            initialController.setRootWireframe(DiscoveryScreenWireframe())
         }
 
         window.rootViewController = initialController

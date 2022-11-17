@@ -18,6 +18,16 @@ struct Message: MessageType {
         sentDate = date
     }
 
+    init(messageDTO: MessageDTO) {
+        user = messageDTO.user
+        messageId = messageDTO.messageId
+        sentDate = messageDTO.sentDate
+        switch messageDTO.kind {
+        case .text(let text):
+            kind = .text(text)
+        }
+    }
+
     init(custom: Any?, user: User, messageId: String, date: Date) {
         self.init(kind: .custom(custom), user: user, messageId: messageId, date: date)
     }

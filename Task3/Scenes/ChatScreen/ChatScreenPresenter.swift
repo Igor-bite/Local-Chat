@@ -14,17 +14,22 @@ final class ChatScreenPresenter {
 
     private unowned let view: ChatScreenViewInterface
     private let wireframe: ChatScreenWireframeInterface
-    private var messageList = [Message(text: "Hello world!", user: .init(senderId: UUID().uuidString, displayName: "Igor"), messageId: UUID().uuidString, date: Date()),
-                               Message(text: "Hello world!", user: .init(senderId: UUID().uuidString, displayName: "Igor"), messageId: UUID().uuidString, date: Date())]
+    private var messageList = [Message]()
+
+    private let connectionManager = ConnectionManager.shared
+    private let peer: PeerModel
 
     // MARK: - Lifecycle -
 
     init(
         view: ChatScreenViewInterface,
-        wireframe: ChatScreenWireframeInterface
+        wireframe: ChatScreenWireframeInterface,
+        peer: PeerModel
     ) {
         self.view = view
         self.wireframe = wireframe
+        self.peer = peer
+        connectionManager.sessionDelegate = self
     }
 }
 
@@ -46,10 +51,24 @@ extension ChatScreenPresenter: ChatScreenPresenterInterface {
     func sendMessage(with text: String) {
         view.setInputBarState(.sending)
         let message = Message(text: text, user: currentSender, messageId: UUID().uuidString, date: Date())
-        messageList.append(message)
+        let isSuccess = connectionManager.sendMessage(mes: message, to: peer)
         view.setInputBarState(.ready)
+        guard isSuccess else { return }
+        messageList.append(message)
         view.insertSections([messageList.count - 1]) { _ in
             self.view.scrollToLastItem()
+        }
+    }
+}
+
+extension ChatScreenPresenter: ConnectionManagerSessionDelegate {
+    func receivedMessages(_ messages: [Message]) {
+        messageList += messages
+        DispatchQueue.main.async {
+            let sections = IndexSet(integersIn: (self.messageList.count - messages.count)..<self.messageList.count)
+            self.view.insertSections(sections) { _ in
+                self.view.scrollToLastItem()
+            }
         }
     }
 }

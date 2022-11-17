@@ -8,7 +8,7 @@
 import Foundation
 import MessageKit
 
-struct User: SenderType, Equatable {
+struct User: SenderType, Equatable, Codable {
     var senderId: String
     var displayName: String
 }

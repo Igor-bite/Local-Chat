@@ -13,11 +13,11 @@ final class ChatScreenWireframe: BaseWireframe<ChatScreenViewController> {
 
     // MARK: - Module setup -
 
-    init() {
+    init(peer: PeerModel) {
         let moduleViewController = ChatScreenViewController()
         super.init(viewController: moduleViewController)
 
-        let presenter = ChatScreenPresenter(view: moduleViewController, wireframe: self)
+        let presenter = ChatScreenPresenter(view: moduleViewController, wireframe: self, peer: peer)
         moduleViewController.presenter = presenter
     }
 
