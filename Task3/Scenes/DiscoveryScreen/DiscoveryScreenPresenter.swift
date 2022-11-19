@@ -11,14 +11,15 @@ final class DiscoveryScreenPresenter {
 
     private unowned let view: DiscoveryScreenViewInterface
     private let wireframe: DiscoveryScreenWireframeInterface
-    private var peers = [PeerModel]() {
+    private var treePeer: PeerModel? {
         didSet {
-            applySnapshot()
+            view.updateJoinChatState(animated: true)
         }
     }
     
     private let connectionManager = ConnectionManager.shared
     private var isAdvertising = false
+    private var isJoined = false
 
     init(
         view: DiscoveryScreenViewInterface,
@@ -30,35 +31,18 @@ final class DiscoveryScreenPresenter {
         connectionManager.discoveryDelegate = self
         connectionManager.startBrowsingForPeers()
     }
-
-    private func applySnapshot(animatingDifferences: Bool = true) {
-        var snapshot = Snapshot()
-        snapshot.appendSections([Section.main])
-        snapshot.appendItems(peers, toSection: Section.main)
-        view.applySnapshot(snapshot, animatingDifferences: animatingDifferences)
-    }
 }
 
 // MARK: - Extensions -
 
 extension DiscoveryScreenPresenter: DiscoveryScreenPresenterInterface {
-    func itemSelected(at indexPath: IndexPath) {
-        let peer = peers[indexPath.row]
-        connectionManager.connectTo(peer)
-        DispatchQueue.main.async {
-            self.view.setAllowsSelection(false)
-        }
+    func joinChatButtonState() -> JoinChatButtonState {
+        treePeer == nil ? .inactive : .active
     }
 
-    func advertiseButtonTapped() {
-        if isAdvertising {
-            view.setAdvertiseButtonTitle("Advertise")
-            connectionManager.stopAdvertising()
-        } else {
-            view.setAdvertiseButtonTitle("Stop advertising")
-            connectionManager.startAdvertising()
-        }
-        isAdvertising.toggle()
+    func joinChatButtonTapped() {
+        guard let peer = treePeer else { return }
+        connectionManager.connectTo(peer)
     }
 
     func changePeerName(to name: String) {
@@ -68,28 +52,32 @@ extension DiscoveryScreenPresenter: DiscoveryScreenPresenterInterface {
 
 extension DiscoveryScreenPresenter: ConnectionManagerDiscoveryDelegate {
     func peerFound(_ peer: PeerModel) {
-        peers.append(peer)
+        if peer.isTreePeer {
+            treePeer = peer
+        }
     }
 
     func peerLost(_ peer: PeerModel) {
-        peers.removeAll { p in
-            p == peer
+        if peer.isTreePeer {
+            treePeer = nil
         }
     }
 
     func connectedToPeer(_ peer: PeerModel) {
+        guard peer.isTreePeer else { return }
         DispatchQueue.main.async {
-            self.wireframe.showTalkingScreen(withPeer: peer)
-            self.view.setAdvertiseButtonTitle("Advertise")
+            self.wireframe.openChatScreen(withPeer: peer)
         }
-        connectionManager.stopAdvertising()
+        connectionManager.stopBrowsingForPeers()
     }
 
     func disconnectedFromPeer(_ peer: PeerModel) {
+        guard peer.isTreePeer else { return }
+        connectionManager.startBrowsingForPeers()
+        view.updateJoinChatState(animated: false)
         DispatchQueue.main.async {
-            self.view.setAllowsSelection(true)
-//            self.wireframe.showIndicator(withTitle: "Connection declined", message: nil, preset: .error)
-            self.wireframe.dismissTalkingScreen()
+            self.wireframe.showIndicator(withTitle: "Connection aborted", message: nil, preset: .error)
+            self.wireframe.dismissChatScreen()
         }
     }
 }

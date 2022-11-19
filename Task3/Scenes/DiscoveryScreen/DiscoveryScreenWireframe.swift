@@ -21,11 +21,11 @@ final class DiscoveryScreenWireframe: BaseWireframe<DiscoveryScreenViewControlle
 // MARK: - Extensions -
 
 extension DiscoveryScreenWireframe: DiscoveryScreenWireframeInterface {
-    func showTalkingScreen(withPeer peer: PeerModel) {
+    func openChatScreen(withPeer peer: PeerModel) {
         navigationController?.pushWireframe(ChatScreenWireframe(peer: peer))
     }
 
-    func dismissTalkingScreen() {
+    func dismissChatScreen() {
         navigationController?.popViewController(animated: true)
     }
 }

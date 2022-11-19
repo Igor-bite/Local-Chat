@@ -25,14 +25,17 @@ struct Message: MessageType {
         switch messageDTO.kind {
         case .text(let text):
             kind = .text(text)
+        case .image(let imageData):
+            let image = UIImage(data: imageData)
+            kind = .photo(ImageMediaItem(image: image))
         }
     }
 
-    init(custom: Any?, user: User, messageId: String, date: Date) {
-        self.init(kind: .custom(custom), user: user, messageId: messageId, date: date)
+    init(image: UIImage, user: User, messageId: String = UUID().uuidString, date: Date = .init()) {
+        self.init(kind: .photo(ImageMediaItem(image: image)), user: user, messageId: messageId, date: date)
     }
 
-    init(text: String, user: User, messageId: String, date: Date) {
+    init(text: String, user: User, messageId: String = UUID().uuidString, date: Date = .init()) {
         self.init(kind: .text(text), user: user, messageId: messageId, date: date)
     }
 
@@ -44,5 +47,19 @@ struct Message: MessageType {
 
     var sender: SenderType {
         user
+    }
+}
+
+struct ImageMediaItem: MediaItem {
+    let url: URL?
+    let image: UIImage?
+    let placeholderImage: UIImage
+    let size: CGSize
+
+    init(image: UIImage?) {
+        self.image = image
+        size = CGSize(width: 240, height: 240)
+        placeholderImage = UIImage(named: "image_message_placeholder")!
+        url = nil
     }
 }

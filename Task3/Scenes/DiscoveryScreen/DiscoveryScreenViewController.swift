@@ -29,51 +29,30 @@ final class DiscoveryScreenViewController: UIViewController {
         return button
     }()
 
-    private lazy var advertiseButton: UIButton = {
+    private lazy var joinButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .blue.withAlphaComponent(0.5)
-        button.layer.cornerRadius = 10
-        button.setTitle("Advertise", for: .normal)
-        button.addTarget(self, action: #selector(advertiseTapped), for: .touchUpInside)
+        button.layer.cornerRadius = Double(UIScreen.main.bounds.width - 100) / 2.0
+        button.titleLabel?.numberOfLines = 2
+        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = .boldSystemFont(ofSize: 50)
+        button.addTarget(self, action: #selector(joinChatTapped), for: .touchUpInside)
         return button
     }()
-
-    private let dataSource: DataSource
-    private let peersCollectionView: UICollectionView
-
-    init() {
-        let layout = UICollectionViewFlowLayout()
-        layout.itemSize = .init(width: UIScreen.main.bounds.width - 30, height: 50)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.register(cellType: PeerCell.self)
-        collectionView.allowsSelection = true
-
-        peersCollectionView = collectionView
-        dataSource = DataSource(collectionView: collectionView, cellProvider: PeerCell.provider)
-
-        super.init(nibName: nil, bundle: nil)
-
-        collectionView.dataSource = dataSource
-        collectionView.delegate = self
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .white
-        title = "Discovery"
+        title = "Chat for nature lovers"
         setup()
+        updateJoinChatState(animated: false)
     }
 
     private func setup() {
         view.addSubview(nameTextField)
         view.addSubview(saveNameButton)
-        view.addSubview(advertiseButton)
-        view.addSubview(peersCollectionView)
+        view.addSubview(joinButton)
 
         nameTextField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(15)
@@ -89,22 +68,12 @@ final class DiscoveryScreenViewController: UIViewController {
             make.width.equalTo((saveNameButton.titleLabel?.intrinsicContentSize.width ?? 0) + 40)
         }
 
-        advertiseButton.snp.makeConstraints { make in
-            make.top.equalTo(nameTextField.snp.bottom).offset(15)
-            make.height.equalTo(50)
-            make.left.equalToSuperview().offset(15)
-            make.right.equalToSuperview().inset(15)
+        joinButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview().inset(50)
+            make.height.equalTo(joinButton.snp.width)
+            make.bottom.equalToSuperview().inset(100)
         }
-
-        peersCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(advertiseButton.snp.bottom).offset(15)
-            make.left.right.bottom.equalToSuperview()
-        }
-    }
-
-    @objc
-    private func advertiseTapped() {
-        presenter.advertiseButtonTapped()
     }
 
     @objc
@@ -116,27 +85,25 @@ final class DiscoveryScreenViewController: UIViewController {
         } else {
             presenter.changePeerName(to: UIDevice.current.name)
         }
+        view.endEditing(true)
+    }
+
+    @objc
+    private func joinChatTapped() {
+        presenter.joinChatButtonTapped()
     }
 }
 
 // MARK: - Extensions -
 
 extension DiscoveryScreenViewController: DiscoveryScreenViewInterface {
-    func applySnapshot(_ snapshot: Snapshot, animatingDifferences: Bool) {
-        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
-    }
-
-    func setAdvertiseButtonTitle(_ title: String) {
-        advertiseButton.setTitle(title, for: .normal)
-    }
-
-    func setAllowsSelection(_ isAllowed: Bool) {
-        peersCollectionView.allowsSelection = isAllowed
-    }
-}
-
-extension DiscoveryScreenViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        presenter.itemSelected(at: indexPath)
+    func updateJoinChatState(animated: Bool) {
+        let state = presenter.joinChatButtonState()
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: animated ? 0.5 : 0, delay: 0) {
+                self.joinButton.backgroundColor = state.bgColor()
+                self.joinButton.setTitle(state.buttonTitle(), for: .normal)
+            }
+        }
     }
 }

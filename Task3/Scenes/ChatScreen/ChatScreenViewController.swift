@@ -8,13 +8,34 @@
 import InputBarAccessoryView
 import MessageKit
 import UIKit
-import MapKit
 
 final class ChatScreenViewController: MessagesViewController {
+    private enum Constants {
+        enum Cell {
+            static let topLabelHeight = 15.0
+            static let bottomLabelHeight = 0.0
+        }
+
+        enum Message {
+            static let topLabelHeight = 20.0
+            static let bottomLabelHeight = 16.0
+        }
+
+        enum InputBar {
+            enum Paddings {
+                static let bottom = 8.0
+                static let middleContentRight = -38.0
+                static let textContainerBottom = 8.0
+            }
+
+            static let readyStatePlaceholder = " Message"
+            static let sendingStatePlaceholder = "Sending..."
+        }
+    }
 
     // MARK: - Public properties -
 
-	// swiftlint:disable:next implicitly_unwrapped_optional
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var presenter: ChatScreenPresenterInterface!
 
     // MARK: - Lifecycle -
@@ -22,36 +43,80 @@ final class ChatScreenViewController: MessagesViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.largeTitleDisplayMode = .never
-        navigationItem.title = "Chat"
 
         configureMessageCollectionView()
         configureMessageInputBar()
         messagesCollectionView.reloadData()
+        updateTitle()
     }
 
-    func configureMessageCollectionView() {
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        presenter.viewWillDisappear()
+    }
+
+    private func configureMessageCollectionView() {
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
+        messagesCollectionView.messageCellDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
-
         showMessageTimestampOnSwipeLeft = true
     }
 
-    func configureMessageInputBar() {
+    private func configureMessageInputBar() {
+        messageInputBar = CameraInputBarAccessoryView()
         messageInputBar.delegate = self
         messageInputBar.inputTextView.tintColor = .primaryColor
         messageInputBar.sendButton.setTitleColor(.primaryColor, for: .normal)
         messageInputBar.sendButton.setTitleColor(
             UIColor.primaryColor.withAlphaComponent(0.3),
-            for: .highlighted
-        )
+            for: .highlighted)
+
+        messageInputBar.isTranslucent = true
+        messageInputBar.separatorLine.isHidden = true
+        messageInputBar.inputTextView.tintColor = .primaryColor
+        messageInputBar.inputTextView.backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
+        messageInputBar.inputTextView.placeholderTextColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1)
+        messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 36)
+        messageInputBar.inputTextView.placeholderLabelInsets = UIEdgeInsets(top: 8, left: 20, bottom: 8, right: 36)
+        messageInputBar.inputTextView.layer.borderColor = UIColor(red: 200 / 255, green: 200 / 255, blue: 200 / 255, alpha: 1).cgColor
+        messageInputBar.inputTextView.layer.borderWidth = 1.0
+        messageInputBar.inputTextView.layer.cornerRadius = 16.0
+        messageInputBar.inputTextView.layer.masksToBounds = true
+        messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        configureInputBarItems()
+        inputBarType = .custom(messageInputBar)
+        setInputBarState(.ready)
     }
 
-    private let formatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter
-    }()
+    private func configureInputBarItems() {
+        messageInputBar.setRightStackViewWidthConstant(to: 36, animated: false)
+        messageInputBar.sendButton.imageView?.backgroundColor = UIColor(white: 0.85, alpha: 1)
+        messageInputBar.sendButton.contentEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+        messageInputBar.sendButton.setSize(CGSize(width: 36, height: 36), animated: false)
+        messageInputBar.sendButton.image = #imageLiteral(resourceName: "ic_up")
+        messageInputBar.sendButton.title = nil
+        messageInputBar.sendButton.imageView?.layer.cornerRadius = 16
+
+        configureInputBarPadding()
+
+        messageInputBar.sendButton
+            .onEnabled { item in
+                UIView.animate(withDuration: 0.3, animations: {
+                    item.imageView?.backgroundColor = .primaryColor
+                })
+            }.onDisabled { item in
+                UIView.animate(withDuration: 0.3, animations: {
+                    item.imageView?.backgroundColor = UIColor(white: 0.85, alpha: 1)
+                })
+            }
+    }
+
+    private func configureInputBarPadding() {
+        messageInputBar.padding.bottom = Constants.InputBar.Paddings.bottom
+        messageInputBar.middleContentViewPadding.right = Constants.InputBar.Paddings.middleContentRight
+        messageInputBar.inputTextView.textContainerInset.bottom = Constants.InputBar.Paddings.textContainerBottom
+    }
 }
 
 // MARK: - Extensions -
@@ -81,163 +146,19 @@ extension ChatScreenViewController: ChatScreenViewInterface {
         switch state {
         case .ready:
             messageInputBar.sendButton.stopAnimating()
-            messageInputBar.inputTextView.placeholder = "Message"
+            messageInputBar.inputTextView.placeholder = Constants.InputBar.readyStatePlaceholder
         case .sending:
-            messageInputBar.inputTextView.placeholder = "Sending..."
+            messageInputBar.inputTextView.placeholder = Constants.InputBar.sendingStatePlaceholder
             messageInputBar.inputTextView.text = nil
             messageInputBar.sendButton.startAnimating()
             messageInputBar.inputTextView.resignFirstResponder()
         }
     }
-}
 
-extension ChatScreenViewController: MessagesDataSource {
-    var currentSender: SenderType {
-        presenter.currentSender
-    }
-
-    func numberOfSections(in _: MessagesCollectionView) -> Int {
-        presenter.numberOfItems()
-    }
-
-    func messageForItem(at indexPath: IndexPath, in _: MessagesCollectionView) -> MessageType {
-        presenter.messageForItem(at: indexPath)
-    }
-
-    func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        if indexPath.section % 3 == 0 {
-            return NSAttributedString(
-                string: MessageKitDateFormatter.shared.string(from: message.sentDate),
-                attributes: [
-                    NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 10),
-                    NSAttributedString.Key.foregroundColor: UIColor.darkGray
-                ]
-            )
+    func updateTitle() {
+        let onlineUsersCount = presenter.onlineUsersCount()
+        if onlineUsersCount >= 0 {
+            configureTitleView(title: "Chat", subtitle: "\(onlineUsersCount) Online")
         }
-        return nil
-    }
-
-    func messageTopLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
-        let name = message.sender.displayName
-        return NSAttributedString(
-            string: name,
-            attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption1)]
-        )
-    }
-
-    func messageBottomLabelAttributedText(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
-        let dateString = formatter.string(from: message.sentDate)
-        return NSAttributedString(
-            string: dateString,
-            attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)]
-        )
-    }
-}
-
-
-enum InputBarState {
-    case ready
-    case sending
-}
-
-extension ChatScreenViewController: InputBarAccessoryViewDelegate {
-    @objc
-    func inputBar(_: InputBarAccessoryView, didPressSendButtonWith _: String) {
-        guard let text = messageInputBar.inputTextView.text else { return }
-        presenter.sendMessage(with: text)
-    }
-}
-
-extension ChatScreenViewController: MessagesDisplayDelegate {
-    // MARK: - Text Messages
-
-    func textColor(for message: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> UIColor {
-        isFromCurrentSender(message: message) ? .white : .darkText
-    }
-
-    // MARK: - All Messages
-
-    func backgroundColor(for message: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> UIColor {
-        isFromCurrentSender(message: message) ? .primaryColor : UIColor(red: 230 / 255, green: 230 / 255, blue: 230 / 255, alpha: 1)
-    }
-
-    func messageStyle(for message: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> MessageStyle {
-        let tail: MessageStyle.TailCorner = isFromCurrentSender(message: message) ? .bottomRight : .bottomLeft
-        return .bubbleTail(tail, .curved)
-    }
-
-    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at _: IndexPath, in _: MessagesCollectionView) {
-        let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
-        avatarView.set(avatar: avatar)
-        avatarView.backgroundColor = isFromCurrentSender(message: message) ? .blue : .gray
-    }
-
-    // MARK: - Location Messages
-
-    func annotationViewForLocation(message _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> MKAnnotationView? {
-        let annotationView = MKAnnotationView(annotation: nil, reuseIdentifier: nil)
-        let pinImage = #imageLiteral(resourceName: "ic_map_marker")
-        annotationView.image = pinImage
-        annotationView.centerOffset = CGPoint(x: 0, y: -pinImage.size.height / 2)
-        return annotationView
-    }
-
-    func animationBlockForLocation(
-        message _: MessageType,
-        at _: IndexPath,
-        in _: MessagesCollectionView
-    ) -> ((UIImageView) -> Void)? {
-        { view in
-            view.layer.transform = CATransform3DMakeScale(2, 2, 2)
-            UIView.animate(
-                withDuration: 0.6,
-                delay: 0,
-                usingSpringWithDamping: 0.9,
-                initialSpringVelocity: 0,
-                options: [],
-                animations: {
-                    view.layer.transform = CATransform3DIdentity
-                },
-                completion: nil
-            )
-        }
-    }
-
-    func snapshotOptionsForLocation(
-        message _: MessageType,
-        at _: IndexPath,
-        in _: MessagesCollectionView
-    )
-        -> LocationMessageSnapshotOptions
-    {
-        LocationMessageSnapshotOptions(
-            showsBuildings: true,
-            showsPointsOfInterest: true,
-            span: MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10)
-        )
-    }
-
-    // MARK: - Audio Messages
-
-    func audioTintColor(for message: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> UIColor {
-        isFromCurrentSender(message: message) ? .white : UIColor(red: 15 / 255, green: 135 / 255, blue: 255 / 255, alpha: 1.0)
-    }
-}
-
-extension ChatScreenViewController: MessagesLayoutDelegate {
-    func cellTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-        18
-    }
-
-    func cellBottomLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-        17
-    }
-
-    func messageTopLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-        20
-    }
-
-    func messageBottomLabelHeight(for _: MessageType, at _: IndexPath, in _: MessagesCollectionView) -> CGFloat {
-        16
     }
 }

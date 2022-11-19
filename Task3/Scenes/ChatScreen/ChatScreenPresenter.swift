@@ -7,6 +7,7 @@
 
 import Foundation
 import MessageKit
+import UIKit
 
 final class ChatScreenPresenter {
 
@@ -18,6 +19,11 @@ final class ChatScreenPresenter {
 
     private let connectionManager = ConnectionManager.shared
     private let peer: PeerModel
+    private let messageSendDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
+    }()
 
     // MARK: - Lifecycle -
 
@@ -30,6 +36,7 @@ final class ChatScreenPresenter {
         self.wireframe = wireframe
         self.peer = peer
         connectionManager.sessionDelegate = self
+        connectionManager.getHistory(from: peer)
     }
 }
 
@@ -37,7 +44,7 @@ final class ChatScreenPresenter {
 
 extension ChatScreenPresenter: ChatScreenPresenterInterface {
     var currentSender: User {
-        SampleData.shared.currentSender
+        SenderService.shared.currentSender
     }
 
     func numberOfItems() -> Int {
@@ -48,10 +55,49 @@ extension ChatScreenPresenter: ChatScreenPresenterInterface {
         messageList[indexPath.section]
     }
 
-    func sendMessage(with text: String) {
+    func cellTopLabel(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+        if indexPath.section % 3 == 0 {
+            return NSAttributedString(
+                string: MessageKitDateFormatter.shared.string(from: message.sentDate),
+                attributes: [
+                    .font: UIFont.boldSystemFont(ofSize: 10),
+                    .foregroundColor: UIColor.darkGray
+                ]
+            )
+        }
+        return nil
+    }
+
+    func messageTopLabel(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
+        let name = message.sender.displayName
+        return NSAttributedString(
+            string: name,
+            attributes: [.font: UIFont.preferredFont(forTextStyle: .caption1)]
+        )
+    }
+
+    func messageBottomLabel(for message: MessageType, at _: IndexPath) -> NSAttributedString? {
+        let dateString = messageSendDateFormatter.string(from: message.sentDate)
+        return NSAttributedString(
+            string: dateString,
+            attributes: [.font: UIFont.preferredFont(forTextStyle: .caption2)]
+        )
+    }
+
+    func sendMessage(withKind kind: MessageKind) {
         view.setInputBarState(.sending)
-        let message = Message(text: text, user: currentSender, messageId: UUID().uuidString, date: Date())
-        let isSuccess = connectionManager.sendMessage(mes: message, to: peer)
+        var message: Message?//(text: text, user: currentSender, messageId: UUID().uuidString, date: Date())
+        switch kind {
+        case .text(let text):
+            message = Message(text: text, user: currentSender)
+        case .photo(let mediaItem):
+            guard let image = mediaItem.image else { return }
+            message = Message(image: image, user: currentSender)
+        default:
+            return
+        }
+        guard let message = message else { return }
+        let isSuccess = connectionManager.sendMessageToAll(mes: message)
         view.setInputBarState(.ready)
         guard isSuccess else { return }
         messageList.append(message)
@@ -59,16 +105,44 @@ extension ChatScreenPresenter: ChatScreenPresenterInterface {
             self.view.scrollToLastItem()
         }
     }
+
+    func didTapImage(at indexPath: IndexPath) {
+        let message = messageForItem(at: indexPath)
+        if case .photo(let media) = message.kind,
+           let image = media.image
+        {
+            wireframe.showARViewScreen(for: image)
+        }
+    }
+
+    func onlineUsersCount() -> Int {
+        return connectionManager.connectedPeers().count - 1
+    }
+
+    func viewWillDisappear() {
+        connectionManager.disconnect()
+    }
 }
 
 extension ChatScreenPresenter: ConnectionManagerSessionDelegate {
-    func receivedMessages(_ messages: [Message]) {
-        messageList += messages
+    func requestsHistory(peer: PeerModel) {
+        assertionFailure("History should not be requested from client peer")
+    }
+
+    func receivedMessages(_ messages: [Message], from peer: PeerModel) {
         DispatchQueue.main.async {
+            self.messageList += messages
+            self.messageList = self.messageList.sorted { $0.sentDate < $1.sentDate }
             let sections = IndexSet(integersIn: (self.messageList.count - messages.count)..<self.messageList.count)
             self.view.insertSections(sections) { _ in
                 self.view.scrollToLastItem()
             }
+        }
+    }
+
+    func connectedPeersCountUpdated(_ count: Int) {
+        DispatchQueue.main.async {
+            self.view.updateTitle()
         }
     }
 }

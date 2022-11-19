@@ -19,15 +19,23 @@ protocol ConnectionManagerDiscoveryDelegate: AnyObject {
 }
 
 protocol ConnectionManagerSessionDelegate: AnyObject {
-    func receivedMessages(_ messages: [Message])
+    func receivedMessages(_ messages: [Message], from peer: PeerModel)
+    func requestsHistory(peer: PeerModel)
+    func connectedPeersCountUpdated(_ count: Int)
 }
 
 final class ConnectionManager: NSObject {
+    private enum Constants {
+        enum Flags: String {
+            case history
+        }
+
+        static let service = "sosna-chat"
+    }
+
     static let shared = ConnectionManager()
 
-    private static let service = "nature-chat"
     static let peerNameKey = "PeerNameKey"
-
     private var myPeerId = MCPeerID(displayName: UserDefaults.standard.string(forKey: ConnectionManager.peerNameKey) ?? UIDevice.current.name)
     private var advertiserAssistant: MCNearbyServiceAdvertiser?
     private var nearbyServiceBrowser: MCNearbyServiceBrowser?
@@ -38,6 +46,12 @@ final class ConnectionManager: NSObject {
     private var isAdvertising = false
     private var isBrowsing = false
     private var isGettingVoice = false
+
+    private var connectedPeersCount = 0 {
+        didSet {
+            self.sessionDelegate?.connectedPeersCountUpdated(connectedPeersCount)
+        }
+    }
     
     private override init() {
         super.init()
@@ -47,11 +61,11 @@ final class ConnectionManager: NSObject {
         advertiserAssistant = MCNearbyServiceAdvertiser(
             peer: myPeerId,
             discoveryInfo: nil,
-            serviceType: ConnectionManager.service
+            serviceType: Constants.service
         )
         advertiserAssistant?.delegate = self
 
-        nearbyServiceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: ConnectionManager.service)
+        nearbyServiceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: Constants.service)
         nearbyServiceBrowser?.delegate = self
     }
 
@@ -94,7 +108,7 @@ final class ConnectionManager: NSObject {
         session = .init(peer: myPeerId, securityIdentity: nil, encryptionPreference: .required)
         session?.delegate = self
 
-        nearbyServiceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: ConnectionManager.service)
+        nearbyServiceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: Constants.service)
         nearbyServiceBrowser?.delegate = self
         if isBrowsing {
             startBrowsingForPeers()
@@ -103,7 +117,7 @@ final class ConnectionManager: NSObject {
         advertiserAssistant = MCNearbyServiceAdvertiser(
             peer: myPeerId,
             discoveryInfo: nil,
-            serviceType: ConnectionManager.service
+            serviceType: Constants.service
         )
         advertiserAssistant?.delegate = self
         if isAdvertising {
@@ -116,10 +130,10 @@ final class ConnectionManager: NSObject {
         nearbyServiceBrowser?.invitePeer(peer.mcPeer, to: session, withContext: nil, timeout: 5)
     }
 
-    func sendMessage(mes: Message, to peer: PeerModel) -> Bool {
+    func sendMessageToAll(mes: Message) -> Bool {
         do {
             let encoder = JSONEncoder()
-            try session?.send(try encoder.encode([MessageDTO(message: mes)]), toPeers: [peer.mcPeer], with: .reliable)
+            try session?.send(try encoder.encode([MessageDTO(message: mes)]), toPeers: session!.connectedPeers, with: .reliable)
             return true
         } catch {
             DispatchQueue.main.async {
@@ -129,23 +143,82 @@ final class ConnectionManager: NSObject {
         }
     }
 
+    func sendMessages(mes: [Message], to peer: PeerModel) -> Bool {
+        do {
+            let encoder = JSONEncoder()
+            let messages = mes.compactMap { message in
+                MessageDTO(message: message)
+            }
+            try session?.send(try encoder.encode(messages), toPeers: [peer.mcPeer], with: .reliable)
+            return true
+        } catch {
+            DispatchQueue.main.async {
+                SPIndicator.present(title: error.localizedDescription, preset: .error)
+            }
+            return false
+        }
+    }
+
+    func getHistory(from peer: PeerModel) {
+        do {
+            try session?.send(Constants.Flags.history.rawValue.data(using: .utf8)!, toPeers: [peer.mcPeer], with: .reliable)
+        } catch {
+            DispatchQueue.main.async {
+                SPIndicator.present(title: error.localizedDescription, preset: .error)
+            }
+        }
+    }
+
     func disconnect() {
         session?.disconnect()
+    }
+
+    func connectedPeers() -> [PeerModel] {
+        session?.connectedPeers.map { PeerModel(mcPeer: $0) } ?? []
     }
 }
 
 extension ConnectionManager: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        if let str = String(data: data, encoding: .utf8),
+           let flag = Constants.Flags(rawValue: str)
+        {
+            switch flag {
+            case .history:
+                sessionDelegate?.requestsHistory(peer: .init(mcPeer: peerID))
+            }
+            return
+        }
+
+        decodeMessages(fromData: data, peer: .init(mcPeer: peerID))
+    }
+
+    private func decodeMessages(fromData data: Data, peer: PeerModel) {
         let decoder = JSONDecoder()
         do {
             let messages = try decoder.decode([MessageDTO].self, from: data)
-            sessionDelegate?.receivedMessages(messages.compactMap({ message in
-                return Message(messageDTO: message)
-            }))
+            sessionDelegate?.receivedMessages(messages.map({ message in
+                Message(messageDTO: message)
+            }), from: peer)
         } catch {
             DispatchQueue.main.async {
                 SPIndicator.present(title: error.localizedDescription, preset: .error)
             }
+        }
+    }
+
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        switch state {
+        case .notConnected:
+            discoveryDelegate?.disconnectedFromPeer(.init(mcPeer: peerID))
+            connectedPeersCount -= 1
+        case .connecting:
+            break
+        case .connected:
+            discoveryDelegate?.connectedToPeer(.init(mcPeer: peerID))
+            connectedPeersCount += 1
+        @unknown default:
+            break
         }
     }
 
@@ -154,24 +227,17 @@ extension ConnectionManager: MCSessionDelegate {
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
 
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
-
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        switch state {
-        case .notConnected:
-            discoveryDelegate?.disconnectedFromPeer(.init(mcPeer: peerID))
-        case .connecting:
-            break
-        case .connected:
-            discoveryDelegate?.connectedToPeer(.init(mcPeer: peerID))
-        @unknown default:
-            break
-        }
-    }
 }
 
 extension ConnectionManager: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         invitationHandler(true, self.session)
+    }
+
+    func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+        DispatchQueue.main.async {
+            SPIndicator.present(title: error.localizedDescription, preset: .error)
+        }
     }
 }
 
@@ -183,26 +249,10 @@ extension ConnectionManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         discoveryDelegate?.peerLost(.init(mcPeer: peerID))
     }
-}
 
-struct MessageDTO: Codable {
-    enum Kind: Codable {
-        case text(String)
-    }
-    let messageId: String
-    let sentDate: Date
-    let kind: Kind
-    let user: User
-
-    init?(message: Message) {
-        messageId = message.messageId
-        sentDate = message.sentDate
-        switch message.kind {
-        case .text(let text):
-            kind = .text(text)
-        default:
-            return nil
+    func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
+        DispatchQueue.main.async {
+            SPIndicator.present(title: error.localizedDescription, preset: .error)
         }
-        user = message.user
     }
 }
