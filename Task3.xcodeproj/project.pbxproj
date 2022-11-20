@@ -27,7 +27,6 @@
 		A54AD14629294FF600F596F3 /* UIImage+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54AD14529294FF600F596F3 /* UIImage+extensions.swift */; };
 		A54AD148292951AF00F596F3 /* InputBarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54AD147292951AF00F596F3 /* InputBarState.swift */; };
 		A5D62986292591B800FF8C96 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = A5D62985292591B800FF8C96 /* SnapKit */; };
-		A5D6298B2925924600FF8C96 /* Reusable in Frameworks */ = {isa = PBXBuildFile; productRef = A5D6298A2925924600FF8C96 /* Reusable */; };
 		A5D6298E2925979800FF8C96 /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = A5D6298D2925979800FF8C96 /* MessageKit */; };
 		A5D6299629259BE600FF8C96 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D6299529259BE500FF8C96 /* Message.swift */; };
 		A5D629A129259C6800FF8C96 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D629A029259C6800FF8C96 /* User.swift */; };
@@ -40,8 +39,7 @@
 		A5D629BC2926BD5A00FF8C96 /* SettingsBundleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D629BB2926BD5A00FF8C96 /* SettingsBundleHelper.swift */; };
 		A5D629BE2926C3C200FF8C96 /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D629BD2926C3C200FF8C96 /* ConnectionManager.swift */; };
 		A5D629C12926C3DE00FF8C96 /* SPIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = A5D629C02926C3DE00FF8C96 /* SPIndicator */; };
-		A5F533252926CFCD0082B2B5 /* PeerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331C2926CFCD0082B2B5 /* PeerCell.swift */; };
-		A5F533262926CFCD0082B2B5 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331D2926CFCD0082B2B5 /* Section.swift */; };
+		A5E6A2BB292A7D3A005018E8 /* GradientLoadingBar in Frameworks */ = {isa = PBXBuildFile; productRef = A5E6A2BA292A7D3A005018E8 /* GradientLoadingBar */; };
 		A5F533272926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331E2926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift */; };
 		A5F533282926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F5331F2926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift */; };
 		A5F533292926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F533202926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift */; };
@@ -82,8 +80,6 @@
 		A5D629B92926BBD300FF8C96 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		A5D629BB2926BD5A00FF8C96 /* SettingsBundleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsBundleHelper.swift; sourceTree = "<group>"; };
 		A5D629BD2926C3C200FF8C96 /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
-		A5F5331C2926CFCD0082B2B5 /* PeerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeerCell.swift; sourceTree = "<group>"; };
-		A5F5331D2926CFCD0082B2B5 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		A5F5331E2926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenWireframe.swift; sourceTree = "<group>"; };
 		A5F5331F2926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenPresenter.swift; sourceTree = "<group>"; };
 		A5F533202926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveryScreenInterfaces.swift; sourceTree = "<group>"; };
@@ -99,8 +95,8 @@
 			files = (
 				A5D6298E2925979800FF8C96 /* MessageKit in Frameworks */,
 				A5D62986292591B800FF8C96 /* SnapKit in Frameworks */,
-				A5D6298B2925924600FF8C96 /* Reusable in Frameworks */,
 				A5D629C12926C3DE00FF8C96 /* SPIndicator in Frameworks */,
+				A5E6A2BB292A7D3A005018E8 /* GradientLoadingBar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,7 +224,6 @@
 		A5F5331A2926CFCD0082B2B5 /* DiscoveryScreen */ = {
 			isa = PBXGroup;
 			children = (
-				A5F5331B2926CFCD0082B2B5 /* Cells */,
 				A5F5331E2926CFCD0082B2B5 /* DiscoveryScreenWireframe.swift */,
 				A5F5331F2926CFCD0082B2B5 /* DiscoveryScreenPresenter.swift */,
 				A5F533202926CFCD0082B2B5 /* DiscoveryScreenInterfaces.swift */,
@@ -237,15 +232,6 @@
 				A50B7C152929733500A62E54 /* JoinChatButtonState.swift */,
 			);
 			path = DiscoveryScreen;
-			sourceTree = "<group>";
-		};
-		A5F5331B2926CFCD0082B2B5 /* Cells */ = {
-			isa = PBXGroup;
-			children = (
-				A5F5331C2926CFCD0082B2B5 /* PeerCell.swift */,
-				A5F5331D2926CFCD0082B2B5 /* Section.swift */,
-			);
-			path = Cells;
 			sourceTree = "<group>";
 		};
 		A5F533222926CFCD0082B2B5 /* Entities */ = {
@@ -282,9 +268,9 @@
 			name = Task3;
 			packageProductDependencies = (
 				A5D62985292591B800FF8C96 /* SnapKit */,
-				A5D6298A2925924600FF8C96 /* Reusable */,
 				A5D6298D2925979800FF8C96 /* MessageKit */,
 				A5D629C02926C3DE00FF8C96 /* SPIndicator */,
+				A5E6A2BA292A7D3A005018E8 /* GradientLoadingBar */,
 			);
 			productName = AvitoInternship2022;
 			productReference = A529C2B028FEF60500E2FD55 /* Task3.app */;
@@ -316,9 +302,9 @@
 			mainGroup = A529C2A728FEF60500E2FD55;
 			packageReferences = (
 				A5D62984292591B800FF8C96 /* XCRemoteSwiftPackageReference "SnapKit" */,
-				A5D629892925924600FF8C96 /* XCRemoteSwiftPackageReference "Reusable" */,
 				A5D6298C2925979800FF8C96 /* XCRemoteSwiftPackageReference "MessageKit" */,
 				A5D629BF2926C3DE00FF8C96 /* XCRemoteSwiftPackageReference "SPIndicator" */,
+				A5E6A2B9292A7D3A005018E8 /* XCRemoteSwiftPackageReference "GradientLoadingBar" */,
 			);
 			productRefGroup = A529C2B128FEF60500E2FD55 /* Products */;
 			projectDirPath = "";
@@ -373,12 +359,10 @@
 				A529C2B428FEF60500E2FD55 /* AppDelegate.swift in Sources */,
 				A5F5332A2926CFCD0082B2B5 /* DiscoveryScreenViewController.swift in Sources */,
 				A50B7C1429296EE700A62E54 /* MessageDTO.swift in Sources */,
-				A5F533252926CFCD0082B2B5 /* PeerCell.swift in Sources */,
 				A54AD14629294FF600F596F3 /* UIImage+extensions.swift in Sources */,
 				A50B7C0B29295B3500A62E54 /* AvatarGenerator.swift in Sources */,
 				A5D629A329259C9B00FF8C96 /* SenderService.swift in Sources */,
 				A5D629B62926524B00FF8C96 /* ChatScreenPresenter.swift in Sources */,
-				A5F533262926CFCD0082B2B5 /* Section.swift in Sources */,
 				A529C30728FEFFA000E2FD55 /* ViewInterface.swift in Sources */,
 				A5D629B52926524B00FF8C96 /* ChatScreenInterfaces.swift in Sources */,
 			);
@@ -612,14 +596,6 @@
 				minimumVersion = 5.0.0;
 			};
 		};
-		A5D629892925924600FF8C96 /* XCRemoteSwiftPackageReference "Reusable" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AliSoftware/Reusable.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 		A5D6298C2925979800FF8C96 /* XCRemoteSwiftPackageReference "MessageKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MessageKit/MessageKit";
@@ -636,6 +612,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		A5E6A2B9292A7D3A005018E8 /* XCRemoteSwiftPackageReference "GradientLoadingBar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/fxm90/GradientLoadingBar";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -643,11 +627,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A5D62984292591B800FF8C96 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
-		};
-		A5D6298A2925924600FF8C96 /* Reusable */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A5D629892925924600FF8C96 /* XCRemoteSwiftPackageReference "Reusable" */;
-			productName = Reusable;
 		};
 		A5D6298D2925979800FF8C96 /* MessageKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -658,6 +637,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A5D629BF2926C3DE00FF8C96 /* XCRemoteSwiftPackageReference "SPIndicator" */;
 			productName = SPIndicator;
+		};
+		A5E6A2BA292A7D3A005018E8 /* GradientLoadingBar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A5E6A2B9292A7D3A005018E8 /* XCRemoteSwiftPackageReference "GradientLoadingBar" */;
+			productName = GradientLoadingBar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

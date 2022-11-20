@@ -30,6 +30,7 @@ final class ChatScreenViewController: MessagesViewController {
 
             static let readyStatePlaceholder = " Message"
             static let sendingStatePlaceholder = "Sending..."
+            static let loadingHistoryStatePlaceholder = "Loading history..."
         }
     }
 
@@ -53,6 +54,11 @@ final class ChatScreenViewController: MessagesViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         presenter.viewWillDisappear()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = false
     }
 
     private func configureMessageCollectionView() {
@@ -86,7 +92,7 @@ final class ChatScreenViewController: MessagesViewController {
         messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         configureInputBarItems()
         inputBarType = .custom(messageInputBar)
-        setInputBarState(.ready)
+        updateInputBarState()
     }
 
     private func configureInputBarItems() {
@@ -142,16 +148,22 @@ extension ChatScreenViewController: ChatScreenViewInterface {
         messagesCollectionView.indexPathsForVisibleItems.contains(IndexPath(item: 0, section: presenter.numberOfItems() - 1))
     }
 
-    func setInputBarState(_ state: InputBarState) {
-        switch state {
+    func updateInputBarState() {
+        switch presenter.getInputBarState() {
         case .ready:
             messageInputBar.sendButton.stopAnimating()
             messageInputBar.inputTextView.placeholder = Constants.InputBar.readyStatePlaceholder
+            messageInputBar.isUserInteractionEnabled = true
         case .sending:
             messageInputBar.inputTextView.placeholder = Constants.InputBar.sendingStatePlaceholder
             messageInputBar.inputTextView.text = nil
             messageInputBar.sendButton.startAnimating()
             messageInputBar.inputTextView.resignFirstResponder()
+            messageInputBar.isUserInteractionEnabled = false
+        case .loadingHistory:
+            messageInputBar.inputTextView.placeholder = Constants.InputBar.loadingHistoryStatePlaceholder
+            messageInputBar.sendButton.startAnimating()
+            messageInputBar.isUserInteractionEnabled = false
         }
     }
 

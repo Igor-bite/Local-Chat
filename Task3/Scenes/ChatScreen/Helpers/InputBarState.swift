@@ -10,4 +10,5 @@ import Foundation
 enum InputBarState {
     case ready
     case sending
+    case loadingHistory
 }

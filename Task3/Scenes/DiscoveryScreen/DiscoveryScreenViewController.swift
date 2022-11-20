@@ -49,6 +49,11 @@ final class DiscoveryScreenViewController: UIViewController {
         updateJoinChatState(animated: false)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = true
+    }
+
     private func setup() {
         view.addSubview(nameTextField)
         view.addSubview(saveNameButton)

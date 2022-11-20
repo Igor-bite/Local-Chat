@@ -21,6 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let initialController = UINavigationController()
         if SettingsBundleHelper.isTree {
+            let vc = UIViewController()
+            vc.navigationController?.isNavigationBarHidden = true
             initialController.setViewControllers([UIViewController()], animated: false)
             treeService.start()
         } else {

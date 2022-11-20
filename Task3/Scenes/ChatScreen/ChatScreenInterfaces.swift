@@ -16,7 +16,7 @@ protocol ChatScreenViewInterface: ViewInterface {
     func reloadData()
     func insertSections(_ sections: IndexSet, completion: @escaping (Bool) -> Void)
     func scrollToLastItem()
-    func setInputBarState(_ state: InputBarState)
+    func updateInputBarState()
     func updateTitle()
 }
 
@@ -30,6 +30,7 @@ protocol ChatScreenPresenterInterface: PresenterInterface {
     func sendMessage(withKind kind: MessageKind)
     func didTapImage(at indexPath: IndexPath)
     func onlineUsersCount() -> Int
+    func getInputBarState() -> InputBarState
     func viewWillDisappear()
 }
 

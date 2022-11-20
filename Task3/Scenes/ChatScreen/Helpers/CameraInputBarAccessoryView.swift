@@ -91,6 +91,7 @@ extension CameraInputBarAccessoryView: UIImagePickerControllerDelegate, UINaviga
         let cameraAction = UIAlertAction(title: "Take From Camera", style: .default) { [weak self] _ in
             self?.showImagePickerController(sourceType: .camera)
         }
+        cameraAction.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
 
         let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: nil)
 

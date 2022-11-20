@@ -24,6 +24,11 @@ final class ChatScreenPresenter {
         formatter.dateStyle = .medium
         return formatter
     }()
+    private var inputBarState = InputBarState.ready {
+        didSet {
+            view.updateInputBarState()
+        }
+    }
 
     // MARK: - Lifecycle -
 
@@ -36,6 +41,7 @@ final class ChatScreenPresenter {
         self.wireframe = wireframe
         self.peer = peer
         connectionManager.sessionDelegate = self
+        inputBarState = .loadingHistory
         connectionManager.getHistory(from: peer)
     }
 }
@@ -85,7 +91,7 @@ extension ChatScreenPresenter: ChatScreenPresenterInterface {
     }
 
     func sendMessage(withKind kind: MessageKind) {
-        view.setInputBarState(.sending)
+        inputBarState = .sending
         var message: Message?//(text: text, user: currentSender, messageId: UUID().uuidString, date: Date())
         switch kind {
         case .text(let text):
@@ -98,7 +104,7 @@ extension ChatScreenPresenter: ChatScreenPresenterInterface {
         }
         guard let message = message else { return }
         let isSuccess = connectionManager.sendMessageToAll(mes: message)
-        view.setInputBarState(.ready)
+        inputBarState = .ready
         guard isSuccess else { return }
         messageList.append(message)
         view.insertSections([messageList.count - 1]) { _ in
@@ -119,6 +125,10 @@ extension ChatScreenPresenter: ChatScreenPresenterInterface {
         return connectionManager.connectedPeers().count - 1
     }
 
+    func getInputBarState() -> InputBarState {
+        return inputBarState
+    }
+
     func viewWillDisappear() {
         connectionManager.disconnect()
     }
@@ -132,10 +142,12 @@ extension ChatScreenPresenter: ConnectionManagerSessionDelegate {
     func receivedMessages(_ messages: [Message], from peer: PeerModel) {
         DispatchQueue.main.async {
             self.messageList += messages
-            self.messageList = self.messageList.sorted { $0.sentDate < $1.sentDate }
             let sections = IndexSet(integersIn: (self.messageList.count - messages.count)..<self.messageList.count)
             self.view.insertSections(sections) { _ in
                 self.view.scrollToLastItem()
+            }
+            if self.inputBarState == .loadingHistory {
+                self.inputBarState = .ready
             }
         }
     }

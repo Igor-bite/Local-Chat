@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import GradientLoadingBar
 
 final class DiscoveryScreenPresenter {
 
@@ -20,6 +21,7 @@ final class DiscoveryScreenPresenter {
     private let connectionManager = ConnectionManager.shared
     private var isAdvertising = false
     private var isJoined = false
+    private let gradientLoadingVar = GradientLoadingBar()
 
     init(
         view: DiscoveryScreenViewInterface,
@@ -43,6 +45,7 @@ extension DiscoveryScreenPresenter: DiscoveryScreenPresenterInterface {
     func joinChatButtonTapped() {
         guard let peer = treePeer else { return }
         connectionManager.connectTo(peer)
+        gradientLoadingVar.fadeIn()
     }
 
     func changePeerName(to name: String) {
@@ -64,6 +67,7 @@ extension DiscoveryScreenPresenter: ConnectionManagerDiscoveryDelegate {
     }
 
     func connectedToPeer(_ peer: PeerModel) {
+        gradientLoadingVar.fadeOut()
         guard peer.isTreePeer else { return }
         DispatchQueue.main.async {
             self.wireframe.openChatScreen(withPeer: peer)

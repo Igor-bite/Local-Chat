@@ -27,6 +27,6 @@ final class ChatScreenWireframe: BaseWireframe<ChatScreenViewController> {
 
 extension ChatScreenWireframe: ChatScreenWireframeInterface {
     func showARViewScreen(for image: UIImage) {
-        navigationController?.pushViewController(ARViewScreenViewController(image: image), animated: true)
+        viewController.present(ARViewScreenViewController(image: image), animated: true)
     }
 }
